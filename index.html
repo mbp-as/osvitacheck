@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Web App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .theme-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .theme-item {
+            padding: 10px;
+            background-color: #f9f9f9;
+            margin: 10px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .theme-item.disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Виберіть тему для курсової роботи</h2>
+    <ul id="themeList" class="theme-list">
+        <li class="theme-item" data-theme="Тема 1">Тема 1</li>
+        <li class="theme-item" data-theme="Тема 2">Тема 2</li>
+        <li class="theme-item" data-theme="Тема 3">Тема 3</li>
+    </ul>
+    <p id="status"></p>
+</div>
+
+<script>
+    // Ініціалізація Telegram Web Apps
+    const tg = window.Telegram.WebApp;
+    tg.expand();  // Розширити вікно веб-застосунку
+
+    const themeList = document.getElementById('themeList');
+    const status = document.getElementById('status');
+    
+    // Отримання даних користувача з Telegram
+    const user = tg.initDataUnsafe.user;
+
+    // Дані про вже зайняті теми (це може бути з бази даних)
+    const takenThemes = [];  // Приклад: ['Тема 1']
+
+    // Відображення списку тем
+    themeList.addEventListener('click', function(event) {
+        const target = event.target;
+        if (target.classList.contains('theme-item') && !target.classList.contains('disabled')) {
+            const selectedTheme = target.dataset.theme;
+
+            // Заблокувати тему після вибору
+            target.classList.add('disabled');
+            target.innerText = `${selectedTheme} (вибрано ${user.first_name} ${user.last_name})`;
+            takenThemes.push(selectedTheme);
+
+            // Відправка вибору на сервер або в базу даних (симуляція)
+            saveThemeSelection(user, selectedTheme);
+
+            status.innerText = `Ви вибрали: ${selectedTheme}`;
+        }
+    });
+
+    // Функція для симуляції збереження вибору в базі даних
+    function saveThemeSelection(user, theme) {
+        console.log(`Користувач ${user.first_name} ${user.last_name} вибрав тему: ${theme}`);
+        // Тут може бути запит на сервер для збереження вибору
+        // fetch('/save-selection', { method: 'POST', body: JSON.stringify({ user, theme }) });
+    }
+
+    // Функція для оновлення тем
+    function updateThemeList() {
+        const items = document.querySelectorAll('.theme-item');
+        items.forEach(item => {
+            const theme = item.dataset.theme;
+            if (takenThemes.includes(theme)) {
+                item.classList.add('disabled');
+                item.innerText = `${theme} (недоступно)`;
+            }
+        });
+    }
+
+    // Оновлення списку тем, щоб недоступні теми відразу були заблоковані
+    updateThemeList();
+</script>
+
+</body>
+</html>
